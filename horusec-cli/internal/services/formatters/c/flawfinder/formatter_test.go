@@ -18,13 +18,21 @@ import (
 	"bytes"
 	"encoding/csv"
 	"errors"
+<<<<<<< HEAD
+=======
+	"testing"
+
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 	"github.com/ZupIT/horusec/development-kit/pkg/entities/horusec"
 	cliConfig "github.com/ZupIT/horusec/horusec-cli/config"
 	"github.com/ZupIT/horusec/horusec-cli/internal/entities/workdir"
 	"github.com/ZupIT/horusec/horusec-cli/internal/services/docker"
 	"github.com/ZupIT/horusec/horusec-cli/internal/services/formatters"
 	"github.com/stretchr/testify/assert"
+<<<<<<< HEAD
 	"testing"
+=======
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 )
 
 func getCsvString() string {
@@ -54,9 +62,14 @@ func TestStartCFlawfinder(t *testing.T) {
 	t.Run("should success execute container and process output", func(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		analysis := &horusec.Analysis{}
+<<<<<<< HEAD
 		config := &cliConfig.Config{
 			WorkDir: &workdir.WorkDir{},
 		}
+=======
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 
 		output := getCsvString()
 
@@ -74,9 +87,14 @@ func TestStartCFlawfinder(t *testing.T) {
 	t.Run("should return error when invalid output", func(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		analysis := &horusec.Analysis{}
+<<<<<<< HEAD
 		config := &cliConfig.Config{
 			WorkDir: &workdir.WorkDir{},
 		}
+=======
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 
 		output := ""
 
@@ -93,9 +111,14 @@ func TestStartCFlawfinder(t *testing.T) {
 	t.Run("should return error when executing container", func(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		analysis := &horusec.Analysis{}
+<<<<<<< HEAD
 		config := &cliConfig.Config{
 			WorkDir: &workdir.WorkDir{},
 		}
+=======
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 
 		dockerAPIControllerMock.On("CreateLanguageAnalysisContainer").Return("", errors.New("test"))
 
@@ -106,12 +129,23 @@ func TestStartCFlawfinder(t *testing.T) {
 			formatter.StartAnalysis("")
 		})
 	})
+<<<<<<< HEAD
 	t.Run("Should not execute tool because it's ignored", func(t *testing.T) {
 		analysis := &horusec.Analysis{}
 		dockerAPIControllerMock := &docker.Mock{}
 		config := &cliConfig.Config{
 			ToolsToIgnore: "gosec,securitycodescan,brakeman,safety,bandit,npmaudit,yarnaudit,spotbugs,horuseckotlin,horusecjava,horusecleaks,gitleaks,tfsec,semgrep,flawfinder",
 		}
+=======
+
+	t.Run("Should not execute tool because it's ignored", func(t *testing.T) {
+		analysis := &horusec.Analysis{}
+		dockerAPIControllerMock := &docker.Mock{}
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+		config.SetToolsToIgnore([]string{"flawfinder"})
+
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 		service := formatters.NewFormatterService(analysis, dockerAPIControllerMock, config, &horusec.Monitor{})
 		formatter := NewFormatter(service)
 

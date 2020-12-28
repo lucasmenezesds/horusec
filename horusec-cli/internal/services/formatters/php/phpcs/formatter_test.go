@@ -29,9 +29,14 @@ func TestStartCFlawfinder(t *testing.T) {
 	t.Run("should success execute container and process output", func(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		analysis := &horusec.Analysis{}
+<<<<<<< HEAD
 		config := &cliConfig.Config{
 			WorkDir: &workdir.WorkDir{},
 		}
+=======
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 
 		output := "{ \"files\":{ \"\\/src\\/XSS\\/XSS_level5.php\":{ \"errors\":1, \"warnings\":4, \"messages\":[ { \"message\":\"User input detetected with $_SERVER.\", \"source\":\"PHPCS_SecurityAudit.Drupal7.UserInputWatch.D7UserInWaWarn\", \"severity\":5, \"fixable\":false, \"type\":\"WARNING\", \"line\":14, \"column\":39 }, { \"message\":\"Easy XSS detected because of direct user input with $_SERVER on echo\", \"source\":\"PHPCS_SecurityAudit.BadFunctions.EasyXSS.EasyXSSerr\", \"severity\":5, \"fixable\":false, \"type\":\"ERROR\", \"line\":14, \"column\":39 } ] } } }"
 
@@ -49,9 +54,14 @@ func TestStartCFlawfinder(t *testing.T) {
 	t.Run("should return error when invalid output", func(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		analysis := &horusec.Analysis{}
+<<<<<<< HEAD
 		config := &cliConfig.Config{
 			WorkDir: &workdir.WorkDir{},
 		}
+=======
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 
 		output := ""
 
@@ -68,9 +78,14 @@ func TestStartCFlawfinder(t *testing.T) {
 	t.Run("should return error when executing container", func(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		analysis := &horusec.Analysis{}
+<<<<<<< HEAD
 		config := &cliConfig.Config{
 			WorkDir: &workdir.WorkDir{},
 		}
+=======
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 
 		dockerAPIControllerMock.On("CreateLanguageAnalysisContainer").Return("", errors.New("test"))
 
@@ -84,9 +99,14 @@ func TestStartCFlawfinder(t *testing.T) {
 	t.Run("Should not execute tool because it's ignored", func(t *testing.T) {
 		analysis := &horusec.Analysis{}
 		dockerAPIControllerMock := &docker.Mock{}
+<<<<<<< HEAD
 		config := &cliConfig.Config{
 			ToolsToIgnore: "gosec,securitycodescan,brakeman,safety,bandit,npmaudit,yarnaudit,spotbugs,horuseckotlin,horusecjava,horusecleaks,gitleaks,tfsec,semgrep,flawfinder,phpcs",
 		}
+=======
+		config := &cliConfig.Config{}
+		config.SetToolsToIgnore([]string{"GoSec", "SecurityCodeScan", "Brakeman", "Safety", "Bandit", "NpmAudit", "YarnAudit", "SpotBugs", "HorusecKotlin", "HorusecJava", "HorusecLeaks", "GitLeaks", "TfSec", "Semgrep", "HorusecCsharp", "HorusecKubernetes", "Eslint", "HorusecNodeJS", "Flawfinder", "PhpCS", "Eslint", "HorusecNodeJS", "Flawfinder", "PhpCS", "phpcs"})
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 		service := formatters.NewFormatterService(analysis, dockerAPIControllerMock, config, &horusec.Monitor{})
 		formatter := NewFormatter(service)
 

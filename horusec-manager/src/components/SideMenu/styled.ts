@@ -17,6 +17,7 @@
 import styled, { css } from 'styled-components';
 import { Icon } from 'components';
 import { isMicrofrontend } from 'helpers/localStorage/microfrontend';
+import Select from 'components/Select';
 
 interface RouterItemProps {
   isActive: boolean;
@@ -28,7 +29,8 @@ interface SubMenuProps {
 
 const SideMenu = styled.div`
   background-color: ${({ theme }) => theme.colors.background.primary};
-  max-width: 145px;
+  min-width: 165px;
+  max-width: 165px;
   display: flex;
   flex-direction: column;
   z-index: 2;
@@ -51,7 +53,9 @@ const Logo = styled.img`
   height: 22px;
 `;
 
-const RoutesList = styled.ul``;
+const RoutesList = styled.ul`
+  margin-top: 20px;
+`;
 
 const SubRoutesList = styled(RoutesList)`
   margin-top: 50px;
@@ -124,6 +128,22 @@ const Option = styled(Icon)`
   width: 30px;
   cursor: pointer;
   margin: 0 0 20px 15px;
+<<<<<<< HEAD
+=======
+`;
+
+const SelectWrapper = styled.div`
+  margin-left: 17px;
+`;
+
+const SelectWorkspace = styled(Select)`
+  border: none !important;
+  max-width: 140px;
+
+  div.options-list {
+    width: 200px !important;
+  }
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 `;
 
 export default {
@@ -138,4 +158,9 @@ export default {
   SubRoutesList,
   SubRouteItem,
   Option,
+<<<<<<< HEAD
+=======
+  SelectWorkspace,
+  SelectWrapper,
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 };

@@ -17,8 +17,12 @@ package flawfinder
 const (
 	ImageName = "horuszup/horusec-flawfinder"
 	ImageTag  = "v1.0.0"
+<<<<<<< HEAD
 	// nolint
 	ImageCmd = `
+=======
+	ImageCmd  = `
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 		flawfinder --columns --singleline --dataonly --context --csv . > /tmp/result-ANALYSISID.json
 		cat /tmp/result-ANALYSISID.json
 		chmod -R 777 .

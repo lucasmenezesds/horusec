@@ -16,13 +16,14 @@ package semgrep
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/ZupIT/horusec/development-kit/pkg/entities/horusec"
 	cliConfig "github.com/ZupIT/horusec/horusec-cli/config"
 	"github.com/ZupIT/horusec/horusec-cli/internal/entities/workdir"
 	"github.com/ZupIT/horusec/horusec-cli/internal/services/docker"
 	"github.com/ZupIT/horusec/horusec-cli/internal/services/formatters"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestParseOutput(t *testing.T) {
@@ -30,9 +31,8 @@ func TestParseOutput(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		dockerAPIControllerMock.On("SetAnalysisID")
 		analysis := &horusec.Analysis{}
-		config := &cliConfig.Config{
-			WorkDir: &workdir.WorkDir{},
-		}
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
 
 		output := "{ \"results\":[ { \"check_id\":\"python.lang.correctness.useless-comparison.no-strings-as-booleans\"," +
 			" \"path\":\"bad/vulpy.py\", \"start\":{ \"line\":36, \"col\":1 }, \"end\":{ \"line\":37, \"col\":23 }, " +
@@ -54,9 +54,8 @@ func TestParseOutput(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		dockerAPIControllerMock.On("SetAnalysisID")
 		analysis := &horusec.Analysis{}
-		config := &cliConfig.Config{
-			WorkDir: &workdir.WorkDir{},
-		}
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
 
 		output := "{ \"results\":[ { \"check_id\":\"python.lang.correctness.useless-comparison.no-strings-as-booleans\"," +
 			" \"path\":\"bad/vulpy.py\", \"start\":{ \"line\":36, \"col\":1 }, \"end\":{ \"line\":37, \"col\":23 }, " +
@@ -78,9 +77,8 @@ func TestParseOutput(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		dockerAPIControllerMock.On("SetAnalysisID")
 		analysis := &horusec.Analysis{}
-		config := &cliConfig.Config{
-			WorkDir: &workdir.WorkDir{},
-		}
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
 
 		output := "{ \"results\":[ { \"check_id\":\"python.lang.correctness.useless-comparison.no-strings-as-booleans\"," +
 			" \"path\":\"bad\", \"start\":{ \"line\":36, \"col\":1 }, \"end\":{ \"line\":37, \"col\":23 }, " +
@@ -102,9 +100,8 @@ func TestParseOutput(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		dockerAPIControllerMock.On("SetAnalysisID")
 		analysis := &horusec.Analysis{}
-		config := &cliConfig.Config{
-			WorkDir: &workdir.WorkDir{},
-		}
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
 
 		output := "!!"
 
@@ -121,9 +118,8 @@ func TestParseOutput(t *testing.T) {
 		dockerAPIControllerMock := &docker.Mock{}
 		dockerAPIControllerMock.On("SetAnalysisID")
 		analysis := &horusec.Analysis{}
-		config := &cliConfig.Config{
-			WorkDir: &workdir.WorkDir{},
-		}
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
 
 		dockerAPIControllerMock.On("CreateLanguageAnalysisContainer").Return("", errors.New("test"))
 
@@ -133,12 +129,14 @@ func TestParseOutput(t *testing.T) {
 		formatter.StartAnalysis("")
 		assert.NotEmpty(t, analysis.Errors)
 	})
+
 	t.Run("Should not execute tool because it's ignored", func(t *testing.T) {
 		analysis := &horusec.Analysis{}
 		dockerAPIControllerMock := &docker.Mock{}
-		config := &cliConfig.Config{
-			ToolsToIgnore: "gosec,securitycodescan,brakeman,safety,bandit,npmaudit,yarnaudit,spotbugs,horuseckotlin,horusecjava,horusecleaks,gitleaks,tfsec,semgrep",
-		}
+		config := &cliConfig.Config{}
+		config.SetWorkDir(&workdir.WorkDir{})
+		config.SetToolsToIgnore([]string{"semgrep"})
+
 		service := formatters.NewFormatterService(analysis, dockerAPIControllerMock, config, &horusec.Monitor{})
 		formatter := NewFormatter(service)
 

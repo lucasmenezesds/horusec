@@ -41,22 +41,20 @@ func TestMock_AddWorkDirInCmd(t *testing.T) {
 		mock.On("AddWorkDirInCmd").Return("")
 		mock.On("GetConfigProjectPath").Return("")
 		mock.On("GetAnalysis").Return(&horusec.Analysis{})
-		mock.On("SetLanguageIsFinished").Return()
+		mock.On("SetToolFinishedAnalysis").Return()
 		mock.On("LogAnalysisError").Return()
 		mock.On("SetMonitor").Return()
 		mock.On("RemoveSrcFolderFromPath").Return("")
 		mock.On("GetCodeWithMaxCharacters").Return("")
 		mock.LogDebugWithReplace("", "")
 		_ = mock.GetAnalysisID()
-		mock.SetAnalysisError(errors.New(""))
 		_, _ = mock.ExecuteContainer(&dockerEntities.AnalysisData{})
 		_ = mock.GetAnalysisIDErrorMessage("", "")
 		_ = mock.GetCommitAuthor("", "")
 		_ = mock.AddWorkDirInCmd("", "", "")
 		_ = mock.GetConfigProjectPath()
 		_ = mock.GetAnalysis()
-		mock.SetLanguageIsFinished()
-		mock.LogAnalysisError(errors.New(""), "", "")
+		mock.SetAnalysisError(errors.New(""), "", "")
 		mock.SetMonitor(&horusec.Monitor{})
 		_ = mock.RemoveSrcFolderFromPath("")
 		_ = mock.GetCodeWithMaxCharacters("", 0)
@@ -118,8 +116,9 @@ func TestGetConfigProjectPath(t *testing.T) {
 func TestAddWorkDirInCmd(t *testing.T) {
 	t.Run("should success add workdir with no errors", func(t *testing.T) {
 		cliConfig := &config.Config{}
-		cliConfig.WorkDir = &workdir.WorkDir{}
-		cliConfig.WorkDir.CSharp = []string{"test"}
+		cliConfig.SetWorkDir(&workdir.WorkDir{
+			CSharp: []string{"test"},
+		})
 
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, cliConfig, &horusec.Monitor{})
 
@@ -130,7 +129,9 @@ func TestAddWorkDirInCmd(t *testing.T) {
 
 	t.Run("should return cmd with no workdir", func(t *testing.T) {
 		cliConfig := &config.Config{}
-		cliConfig.WorkDir = &workdir.WorkDir{}
+		cliConfig.SetWorkDir(&workdir.WorkDir{
+			CSharp: []string{"test"},
+		})
 
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, cliConfig, &horusec.Monitor{})
 
@@ -166,29 +167,19 @@ func TestGetAnalysis(t *testing.T) {
 	})
 }
 
-func TestSetAnalysisError(t *testing.T) {
-	t.Run("should success set analysis errors", func(t *testing.T) {
-		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, &config.Config{}, &horusec.Monitor{})
-
-		monitorController.SetAnalysisError(errors.New("test"))
-
-		assert.NotEmpty(t, monitorController.GetAnalysis().Errors)
-	})
-}
-
 func TestLogAnalysisError(t *testing.T) {
 	t.Run("should not panic when logging error", func(t *testing.T) {
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, &config.Config{}, &horusec.Monitor{})
 
 		assert.NotPanics(t, func() {
-			monitorController.LogAnalysisError(errors.New("test"), tools.GoSec, "")
+			monitorController.SetAnalysisError(errors.New("test"), tools.GoSec, "")
 		})
 	})
 	t.Run("should not panic when logging error and exists projectSubPath", func(t *testing.T) {
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, &config.Config{}, &horusec.Monitor{})
 
 		assert.NotPanics(t, func() {
-			monitorController.LogAnalysisError(errors.New("test"), tools.GoSec, "/tmp")
+			monitorController.SetAnalysisError(errors.New("test"), tools.GoSec, "/tmp")
 		})
 	})
 }
@@ -201,7 +192,7 @@ func TestSetLanguageIsFinished(t *testing.T) {
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, &config.Config{}, nil)
 		monitorController.SetMonitor(monitor)
 
-		monitorController.SetLanguageIsFinished()
+		monitorController.SetToolFinishedAnalysis()
 		assert.Equal(t, 0, monitor.GetProcess())
 	})
 }
@@ -210,7 +201,8 @@ func TestToolIsToIgnore(t *testing.T) {
 	t.Run("should return true when language is match", func(t *testing.T) {
 		monitor := horusec.NewMonitor()
 		monitor.AddProcess(1)
-		configs := &config.Config{ToolsToIgnore: "GoSec"}
+		configs := &config.Config{}
+		configs.SetToolsToIgnore([]string{"GoSec"})
 
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, configs, &horusec.Monitor{})
 
@@ -219,7 +211,8 @@ func TestToolIsToIgnore(t *testing.T) {
 	t.Run("should return true when language is match uppercase", func(t *testing.T) {
 		monitor := horusec.NewMonitor()
 		monitor.AddProcess(1)
-		configs := &config.Config{ToolsToIgnore: "GOSEC"}
+		configs := &config.Config{}
+		configs.SetToolsToIgnore([]string{"GOSEC"})
 
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, configs, &horusec.Monitor{})
 
@@ -228,7 +221,8 @@ func TestToolIsToIgnore(t *testing.T) {
 	t.Run("should return true when language is match lowercase and multi tools", func(t *testing.T) {
 		monitor := horusec.NewMonitor()
 		monitor.AddProcess(1)
-		configs := &config.Config{ToolsToIgnore: "SecurityCodeScan , gosEC"}
+		configs := &config.Config{}
+		configs.SetToolsToIgnore([]string{"SecurityCodeScan", "gosEC"})
 
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, configs, &horusec.Monitor{})
 
@@ -237,7 +231,8 @@ func TestToolIsToIgnore(t *testing.T) {
 	t.Run("should return false when language is not match", func(t *testing.T) {
 		monitor := horusec.NewMonitor()
 		monitor.AddProcess(1)
-		configs := &config.Config{ToolsToIgnore: "SECURITYCODESCAN"}
+		configs := &config.Config{}
+		configs.SetToolsToIgnore([]string{"SECURITYCODESCAN"})
 
 		monitorController := NewFormatterService(&horusec.Analysis{}, &docker.Mock{}, configs, &horusec.Monitor{})
 

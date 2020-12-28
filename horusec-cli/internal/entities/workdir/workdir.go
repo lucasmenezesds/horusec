@@ -16,10 +16,10 @@ package workdir
 
 import (
 	"encoding/json"
-
-	"github.com/ZupIT/horusec/development-kit/pkg/enums/languages"
 	"github.com/ZupIT/horusec/development-kit/pkg/utils/logger"
 	"github.com/ZupIT/horusec/horusec-cli/internal/helpers/messages"
+
+	"github.com/ZupIT/horusec/development-kit/pkg/enums/languages"
 )
 
 type WorkDir struct {
@@ -33,7 +33,30 @@ type WorkDir struct {
 	JavaScript []string `json:"javaScript"`
 	Leaks      []string `json:"leaks"`
 	HCL        []string `json:"hcl"`
+	PHP        []string `json:"php"`
+	C          []string `json:"c"`
+	Yaml       []string `json:"yaml"`
 	Generic    []string `json:"generic"`
+}
+
+//nolint:funlen parse struct is necessary > 15 lines
+func NewWorkDir() *WorkDir {
+	return &WorkDir{
+		Go:         []string{},
+		NetCore:    []string{},
+		CSharp:     []string{},
+		Ruby:       []string{},
+		Python:     []string{},
+		Java:       []string{},
+		Kotlin:     []string{},
+		JavaScript: []string{},
+		Leaks:      []string{},
+		HCL:        []string{},
+		PHP:        []string{},
+		C:          []string{},
+		Yaml:       []string{},
+		Generic:    []string{},
+	}
 }
 
 func (w *WorkDir) String() string {
@@ -41,25 +64,28 @@ func (w *WorkDir) String() string {
 	return string(bytes)
 }
 
-func (w *WorkDir) ParseInterfaceToStruct(toParse interface{}) {
+func (w *WorkDir) ParseInterfaceToStruct(toParse interface{}) *WorkDir {
+	if _, ok := toParse.(*WorkDir); ok {
+		return toParse.(*WorkDir)
+	}
 	bytes, err := json.Marshal(toParse)
 	if err != nil {
 		logger.LogErrorWithLevel(messages.MsgErrorParseStringToWorkDir, err, logger.ErrorLevel)
-		return
+		return w
 	}
-
-	err = json.Unmarshal(bytes, &w)
-	if err != nil {
+	if err = json.Unmarshal(bytes, &w); err != nil {
 		logger.LogErrorWithLevel(messages.MsgErrorParseStringToWorkDir, err, logger.ErrorLevel)
 	}
+	return w.setEmptyOrSliceEmptyInNilContent()
 }
 
 func (w *WorkDir) Type() string {
 	return ""
 }
 
+//nolint
 func (w *WorkDir) Map() map[languages.Language][]string {
-	cSharp := []string{}
+	var cSharp []string
 	cSharp = append(cSharp, w.NetCore...)
 	cSharp = append(cSharp, w.CSharp...)
 	return map[languages.Language][]string{
@@ -73,6 +99,9 @@ func (w *WorkDir) Map() map[languages.Language][]string {
 		languages.Leaks:      w.Leaks,
 		languages.HCL:        w.HCL,
 		languages.Generic:    w.Generic,
+		languages.PHP:        w.PHP,
+		languages.C:          w.C,
+		languages.Yaml:       w.Yaml,
 	}
 }
 
@@ -83,4 +112,51 @@ func (w *WorkDir) GetArrayByLanguage(language languages.Language) []string {
 	}
 
 	return []string{""}
+}
+
+//nolint:gocyclo validation is necessary > 5 conditions
+func (w *WorkDir) setEmptyOrSliceEmptyInNilContent() *WorkDir {
+	if w.Go == nil {
+		w.Go = []string{}
+	}
+	if w.NetCore == nil {
+		w.NetCore = []string{}
+	}
+	if w.CSharp == nil {
+		w.CSharp = []string{}
+	}
+	if w.Ruby == nil {
+		w.Ruby = []string{}
+	}
+	if w.Python == nil {
+		w.Python = []string{}
+	}
+	if w.Java == nil {
+		w.Java = []string{}
+	}
+	if w.Kotlin == nil {
+		w.Kotlin = []string{}
+	}
+	if w.JavaScript == nil {
+		w.JavaScript = []string{}
+	}
+	if w.Leaks == nil {
+		w.Leaks = []string{}
+	}
+	if w.HCL == nil {
+		w.HCL = []string{}
+	}
+	if w.PHP == nil {
+		w.PHP = []string{}
+	}
+	if w.C == nil {
+		w.C = []string{}
+	}
+	if w.Yaml == nil {
+		w.Yaml = []string{}
+	}
+	if w.Generic == nil {
+		w.Generic = []string{}
+	}
+	return w
 }

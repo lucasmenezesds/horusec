@@ -18,10 +18,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ZupIT/horusec/development-kit/pkg/enums/horusec"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ZupIT/horusec/development-kit/pkg/enums/horusec"
 
 	"github.com/ZupIT/horusec/development-kit/pkg/enums/cli"
 	"github.com/ZupIT/horusec/horusec-cli/config"
@@ -39,7 +40,7 @@ var (
 
 type PrintResults struct {
 	analysis         *horusecEntities.Analysis
-	configs          *config.Config
+	configs          config.IConfig
 	totalVulns       int
 	sonarqubeService sonarqube.Interface
 }
@@ -49,7 +50,7 @@ type Interface interface {
 	SetAnalysis(analysis *horusecEntities.Analysis)
 }
 
-func NewPrintResults(analysis *horusecEntities.Analysis, configs *config.Config) Interface {
+func NewPrintResults(analysis *horusecEntities.Analysis, configs config.IConfig) Interface {
 	return &PrintResults{
 		analysis:         analysis,
 		configs:          configs,
@@ -70,7 +71,7 @@ func (pr *PrintResults) StartPrintResults() (totalVulns int, err error) {
 	pr.verifyRepositoryAuthorizationToken()
 	pr.printResponseAnalysis()
 	pr.checkIfExistsErrorsInAnalysis()
-	if pr.configs.IsTimeout {
+	if pr.configs.GetIsTimeout() {
 		logger.LogWarnWithLevel(messages.MsgErrorTimeoutOccurs, logger.ErrorLevel)
 	}
 
@@ -79,9 +80,9 @@ func (pr *PrintResults) StartPrintResults() (totalVulns int, err error) {
 
 func (pr *PrintResults) factoryPrintByType() error {
 	switch {
-	case pr.configs.PrintOutputType == string(cli.JSON):
+	case pr.configs.GetPrintOutputType() == string(cli.JSON):
 		return pr.runPrintResultsJSON()
-	case pr.configs.PrintOutputType == string(cli.SonarQube):
+	case pr.configs.GetPrintOutputType() == string(cli.SonarQube):
 		return pr.runPrintResultsSonarQube()
 	default:
 		return pr.runPrintResultsText()
@@ -145,10 +146,9 @@ func (pr *PrintResults) isTypeVulnToSkip(vuln *horusecEntities.Vulnerability) bo
 }
 
 func (pr *PrintResults) isIgnoredVulnerability(vulnerabilityType string) (ignore bool) {
-	listTypesToIgnore := strings.Split(pr.configs.TypesOfVulnerabilitiesToIgnore, ",")
 	ignore = false
 
-	for _, typeToIgnore := range listTypesToIgnore {
+	for _, typeToIgnore := range pr.configs.GetSeveritiesToIgnore() {
 		if strings.EqualFold(vulnerabilityType, strings.TrimSpace(typeToIgnore)) ||
 			vulnerabilityType == string(severity.NoSec) || vulnerabilityType == string(severity.Info) {
 			ignore = true
@@ -176,7 +176,7 @@ func (pr *PrintResults) returnDefaultErrOutputJSON(err error) error {
 }
 
 func (pr *PrintResults) parseFilePathToAbsAndCreateOutputJSON(bytesToWrite []byte) error {
-	completePath, err := filepath.Abs(pr.configs.JSONOutputFilePath)
+	completePath, err := filepath.Abs(pr.configs.GetJSONOutputFilePath())
 	if err != nil {
 		return pr.returnDefaultErrOutputJSON(err)
 	}
@@ -238,7 +238,11 @@ func (pr *PrintResults) printTextOutputVulnerabilityData(vulnerability *horusecE
 	fmt.Println(fmt.Sprintf("Column: %s", vulnerability.Column))
 	fmt.Println(fmt.Sprintf("SecurityTool: %s", vulnerability.SecurityTool))
 	fmt.Println(fmt.Sprintf("Confidence: %s", vulnerability.Confidence))
+<<<<<<< HEAD
 	fmt.Println(fmt.Sprintf("File: %s/%s", pr.configs.GetProjectPath(), vulnerability.File))
+=======
+	fmt.Println(fmt.Sprintf("File: %s", pr.getProjectPath(vulnerability.File)))
+>>>>>>> 538d56d31687b4cbea77d421b2708a24be39bbb7
 	fmt.Println(fmt.Sprintf("Code: %s", vulnerability.Code))
 	fmt.Println(fmt.Sprintf("Details: %s", vulnerability.Details))
 	fmt.Println(fmt.Sprintf("Type: %s", vulnerability.Type))
@@ -254,7 +258,7 @@ func (pr *PrintResults) printTextOutputVulnerabilityData(vulnerability *horusecE
 
 // nolint
 func (pr *PrintResults) printCommitAuthor(vulnerability *horusecEntities.Vulnerability) {
-	if !pr.configs.IsCommitAuthorEnable() {
+	if !pr.configs.GetEnableCommitAuthor() {
 		return
 	}
 	fmt.Println(fmt.Sprintf("Commit Author: %s", vulnerability.CommitAuthor))
@@ -312,4 +316,16 @@ func (pr *PrintResults) logSeparator(isToShow bool) {
 	if isToShow {
 		fmt.Println(fmt.Sprintf("\n==================================================================================\n"))
 	}
+}
+
+func (pr *PrintResults) getProjectPath(path string) string {
+	if strings.Contains(path, pr.configs.GetProjectPath()) {
+		return path
+	}
+
+	if pr.configs.GetContainerBindProjectPath() != "" {
+		return fmt.Sprintf("%s/%s", pr.configs.GetContainerBindProjectPath(), path)
+	}
+
+	return fmt.Sprintf("%s/%s", pr.configs.GetProjectPath(), path)
 }

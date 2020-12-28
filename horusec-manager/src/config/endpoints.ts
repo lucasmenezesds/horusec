@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-const isLocalHost = window.location.origin.includes('localhost');
+const isLocalHost =
+  window.location.origin.includes('localhost') ||
+  window.location.origin.includes('127.0.0.1');
 
 function API_HOST(ENV_ENDPOINT: any) {
   if (!ENV_ENDPOINT) {
