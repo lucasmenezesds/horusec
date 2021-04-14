@@ -56,6 +56,10 @@ const Title = styled.h4`
   font-weight: normal;
   display: block;
   min-height: 60px;
+
+  button {
+    margin-left: 20px;
+  }
 `;
 
 export default { Wrapper, Title, LoadingWrapper };

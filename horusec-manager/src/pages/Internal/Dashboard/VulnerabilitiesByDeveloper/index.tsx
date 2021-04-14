@@ -41,6 +41,11 @@ const VulnerabilitiesByDeveloper: React.FC<Props> = ({ filters }) => {
     series: [],
   });
 
+  const [chartDataAux, setChartDataAux] = useState<ChartBarStacked>({
+    categories: [],
+    series: [],
+  });
+
   const options: ApexOptions = {
     markers: {
       size: 0,
@@ -64,10 +69,32 @@ const VulnerabilitiesByDeveloper: React.FC<Props> = ({ filters }) => {
       fontFamily: 'SFRegular',
       stacked: true,
       animations: {
-        enabled: true,
+        enabled: false,
       },
       toolbar: {
         show: false,
+      },
+      events: {
+        click: (_event, _chartContext, config) => {
+          const { seriesIndex } = config;
+          setChartData((state) => {
+            const category = state.series[seriesIndex];
+            let categories = [];
+            let series = [];
+            if (category) {
+              categories = [category.name];
+              series = [
+                { name: 'Vulnerability', data: [1] },
+                { name: 'Risk Accepted', data: [1] },
+                { name: 'False Positive', data: [1] },
+                { name: 'Corrected', data: [1] },
+              ];
+              return { categories, series };
+            } else {
+              return state;
+            }
+          });
+        },
       },
     },
     plotOptions: {
@@ -105,7 +132,9 @@ const VulnerabilitiesByDeveloper: React.FC<Props> = ({ filters }) => {
         .getVulnerabilitiesByDeveloper(filters)
         .then((result: AxiosResponse) => {
           if (!isCancelled) {
-            setChartData(formatChartStacked(result.data.content, 'developer'));
+            const data = formatChartStacked(result.data.content, 'developer');
+            setChartData(data);
+            setChartDataAux(data);
           }
         })
         .finally(() => {
@@ -125,6 +154,7 @@ const VulnerabilitiesByDeveloper: React.FC<Props> = ({ filters }) => {
       <Styled.Wrapper>
         <Styled.Title>
           {t('DASHBOARD_SCREEN.VULNERABILITIES_BY_DEV')}
+          <button onClick={() => setChartData(chartDataAux)}>Refresh</button>
         </Styled.Title>
 
         <Styled.LoadingWrapper isLoading={isLoading}>
